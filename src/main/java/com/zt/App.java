@@ -28,91 +28,101 @@ public class App {
     private String filePath;
 
     public App() {
-        okButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                boolean encryptSelect = encryptRadioButton.isSelected();
-                boolean decryptSelect = decryptRadioButton.isSelected();
-                boolean singleSelect = singleRadioButton.isSelected();
-                boolean batchSelect = batchRadioButton.isSelected();
-                String pass = password.getPassword().toString();
-                if(encryptSelect){  //加密
-                    if(fileMessage() && passMessage(pass)){
-                        if(singleSelect){
-
-                        }else if(batchSelect){
-
-                        }
-                    }
-
-                }else if(decryptSelect){    //解密
-                    if(fileMessage() && passMessage(pass)){
-                        if(singleSelect){
-
-                        }else if(batchSelect){
-
-                        }
-                    }
-                }
-            }
-
-            private boolean fileMessage() {
-                if(filePath == null){
-                    JOptionPane.showMessageDialog(null, "你没有选择文件路径" , "警告",
-                            JOptionPane.INFORMATION_MESSAGE);
-                    return false;
-                }else{
-                    return true;
-                }
-            }
-            private boolean passMessage(String pass) {
-
-                if(pass == null){
-                    JOptionPane.showMessageDialog(null, "你还没有设置密码" , "警告",
-                            JOptionPane.INFORMATION_MESSAGE);
-                    return false;
-                }else if(pass.length() <6){
-                    JOptionPane.showMessageDialog(null, "密码长度应该大于6位" , "警告",
-                            JOptionPane.INFORMATION_MESSAGE);
-                    return false;
-                }else{
-                    return true;
-                }
-            }
-        });
-        checkButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                boolean singleSelect = singleRadioButton.isSelected();
-                boolean batchSelect = batchRadioButton.isSelected();
-                JFileChooser fileChooser = new JFileChooser("D:\\");
-                if(singleSelect){
-                    fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-                }if (batchSelect){
-                    fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                }
-                int returnVal = fileChooser.showOpenDialog(fileChooser);
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    filePath = fileChooser.getSelectedFile().getAbsolutePath();// 这个就是你选择的文件夹的路径
-
-                }
-            }
-        });
+        okButton.addActionListener(new okButtonListener());
+        checkButton.addActionListener(new checkButtonListener());
     }
 
-    public void createUI(){
+    /**
+     * 点击ok监听
+     */
+    private class okButtonListener implements ActionListener{
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            boolean encryptSelect = encryptRadioButton.isSelected();
+            boolean decryptSelect = decryptRadioButton.isSelected();
+            boolean singleSelect = singleRadioButton.isSelected();
+            boolean batchSelect = batchRadioButton.isSelected();
+           // String pass = password.getPassword().toString();
+            String pass = "123456";
+            if (fileMessage() && passMessage(pass)) {
+                if (singleSelect) {
+                    single(filePath,pass,encryptSelect);
+                } else if (batchSelect) {
+                    batch(filePath,pass,encryptSelect);
+                }
+            }
+        }
+    }
+
+    /**
+     * 选择文件监听
+     */
+    private class checkButtonListener implements ActionListener{
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            boolean singleSelect = singleRadioButton.isSelected();
+            boolean batchSelect = batchRadioButton.isSelected();
+            JFileChooser fileChooser = new JFileChooser("D:\\");
+            if (singleSelect) {
+                fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+            }
+            if (batchSelect) {
+                fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            }
+            int returnVal = fileChooser.showOpenDialog(fileChooser);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                filePath = fileChooser.getSelectedFile().getAbsolutePath();// 这个就是你选择的文件夹的路径
+
+            }
+        }
+    }
+
+    public void createUI() {
         //创建窗体框架JFram
         JFrame frame = new JFrame("App");
         frame.setContentPane(new App().appPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         //设置窗体大小
-        frame.setSize(800,400);
+        frame.setSize(800, 400);
         //显示 窗体界面
         frame.setVisible(true);
     }
+    /**
+     * 对文件选择的提示
+     * @return
+     */
+    private boolean fileMessage() {
+        if (filePath == null) {
+            JOptionPane.showMessageDialog(null, "你没有选择文件路径", "警告",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return false;
+        } else {
+            return true;
+        }
+    }
 
+    /**
+     * 对密码的提示
+     * @param pass
+     * @return
+     */
+    private boolean passMessage(String pass) {
+
+        if (pass == null) {
+            JOptionPane.showMessageDialog(null, "你还没有设置密码", "警告",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return false;
+        } else if (pass.length() < 6) {
+            JOptionPane.showMessageDialog(null, "密码长度应该大于6位", "警告",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return false;
+        } else {
+            return true;
+        }
+    }
 
     public String md5s(String plainText) {
         String str = null;
@@ -142,6 +152,7 @@ public class App {
         }
         return str;
     }
+
     public static void main(String[] args) {
         App app = new App();
         app.createUI();
@@ -152,7 +163,7 @@ public class App {
      *
      * @param path
      */
-    public void ergodic(String path, String pass, Boolean isEncrypt) {
+    public void batch(String path, String pass, Boolean isEncrypt) {
         File file = new File(path);
         if (file.exists()) {
             File[] files = file.listFiles();
@@ -163,7 +174,7 @@ public class App {
                 for (File file2 : files) {
                     if (file2.isDirectory()) {
                         System.out.println("文件夹:" + file2.getAbsolutePath());
-                        ergodic(file2.getAbsolutePath(), pass, isEncrypt);
+                        batch(file2.getAbsolutePath(), pass, isEncrypt);
                     } else {
                         System.out.println("文件:" + file2.getAbsolutePath());
 
@@ -190,11 +201,12 @@ public class App {
 
     /**
      * 对单个文件进行加密
+     *
      * @param path
      * @param pass
      * @param isEncrypt
      */
-    public void single(String path, String pass, Boolean isEncrypt){
+    public void single(String path, String pass, Boolean isEncrypt) {
         File file = new File(path);
         String name = file.getAbsolutePath();
         String pass1 = pass.substring(0, 2);
@@ -208,6 +220,7 @@ public class App {
             System.out.println("文件:" + file.getAbsolutePath() + "解密成功");
         }
     }
+
     /**
      * 加密函数 输入： 要加密的文件，密码（由0-F组成，共48个字符，表示3个8位的密码）如：
      * AD67EA2F3BE6E5ADD368DFE03120B5DF92A8FD8FEC2F0746 其中： AD67EA2F3BE6E5AD
@@ -316,6 +329,7 @@ public class App {
         }
         return bRet;
     }
+
     /**
      * 计算一个16进制字符的10进制值 输入：0-F
      */
